@@ -52,12 +52,38 @@ function topoToGeo(topo, objectName) {
   return { type: "Feature", properties: {}, geometry: geom(topo.objects[objectName]) };
 }
 
+// Draws the land one polygon at a time. At a few angles, d3's horizon clipping can turn a tiny island
+// that sits right on the edge of the globe into a ring around the whole disc, which flips land and ocean.
+// A polygon whose drawn shape covers the center of the view without actually containing that point
+// is one of those glitches, so it is skipped for that frame.
+function drawLand(ctx, path, polygons, viewCenter, px, py) {
+  polygons.forEach((poly) => {
+    ctx.beginPath();
+    path(poly);
+    if (ctx.isPointInPath(px, py) && !d3.geoContains(poly, viewCenter)) return;
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+
+function landPolygons(feature) {
+  const out = [];
+  const walk = (g) => {
+    if (!g) return;
+    if (g.type === "GeometryCollection") g.geometries.forEach(walk);
+    else if (g.type === "Polygon") out.push(g);
+    else if (g.type === "MultiPolygon") g.coordinates.forEach((c) => out.push({ type: "Polygon", coordinates: c }));
+  };
+  walk(feature.geometry);
+  return out;
+}
+
 async function loadLand() {
   const urls = ["assets/land-110m.json", "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json"];
   for (const url of urls) {
     try {
       const res = await fetch(url);
-      if (res.ok) return topoToGeo(await res.json(), "land");
+      if (res.ok) return landPolygons(topoToGeo(await res.json(), "land"));
     } catch (e) { /* try the next one */ }
   }
   return null; // the globe still works, just without coastlines
@@ -166,7 +192,7 @@ function initGlobe({ canvas, infoEl, boardEl, latestRows }) {
 
     if (land) {
       ctx.fillStyle = "#f7c9d6"; ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 0.6;
-      ctx.beginPath(); path(land); ctx.fill(); ctx.stroke();
+      drawLand(ctx, path, land, [-rotation[0], -rotation[1]], cx * dpr, cy * dpr);
     }
 
     // routes
