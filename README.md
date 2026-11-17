@@ -135,6 +135,9 @@ day counts once. If the second run's fetch fails, the earlier raw file from that
 
 | Path | What it does |
 |---|---|
+| `README.md` | This file: what the project does, its files, source, columns, move rule and commands |
+| `.gitignore` | Keeps Python caches and test caches out of the repository |
+| `tracker/__init__.py` | Marks `tracker/` as a Python package (so `python -m tracker.run` works) |
 | `tracker/config.py` | The airports (items), history columns, move rule settings and file paths |
 | `tracker/sources.py` | Each source: how it is downloaded and how its raw file becomes rows with the common columns |
 | `tracker/build.py` | Builds `data/history.csv` from the raw files (`python -m tracker.build`) |
@@ -142,6 +145,7 @@ day counts once. If the second run's fetch fails, the earlier raw file from that
 | `tracker/status.py` | Writes `data/status.json` |
 | `tracker/issue.py` | Writes the issue text and opens, updates and closes issues through the GitHub API |
 | `tracker/run.py` | The daily pipeline (`python -m tracker.run`) |
+| `tests/__init__.py` | Marks `tests/` as a package so pytest can import the tracker |
 | `tests/test_sources.py` | Tests the conversion of the source to the common columns |
 | `tests/test_moves.py` | Tests the move rule |
 | `tests/test_history.py` | Tests the history logic: build from raw files, reproducibility, a second run on the same day, failing sources, status |
@@ -165,6 +169,7 @@ day counts once. If the second run's fetch fails, the earlier raw file from that
 | `assets/land-110m.json` | World coastlines (world-atlas, Natural Earth 1:110m, public domain), saved by the daily workflow on its first run |
 | `manifest.webmanifest` | Web app manifest that makes the site installable |
 | `sw.js` | Service worker: caches the site, loads data from the network when online and from the cache when offline |
-| `icons/` | App icons |
+| `icons/icon-192.png`, `icons/icon-512.png` | App icons used when the site is installed |
+| `icons/icon-maskable-512.png` | App icon with safe padding for Android's rounded and circular icon shapes |
 | `requirements.txt` | Python packages for the tests |
 | `.nojekyll` | Tells GitHub Pages to serve the files as they are |
