@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Browse · Jetset Tracker</title>
+  <meta name="theme-color" content="#d9547a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="browse">
+  <nav class="nav">
+    <a class="brand" href="index.html">✈ Jetset <span>Tracker</span></a>
+    <div class="nav-links">
+      <a href="index.html" data-page="today">Today</a>
+      <a href="browse.html" data-page="browse">Browse</a>
+      <a href="trends.html" data-page="trends">Trends</a>
+    </div>
+  </nav>
+  <main>
+    <div id="offline" class="offline">You're offline. Showing the last data this device loaded.</div>
+    <section class="hero">
+      <h1>Browse destinations</h1>
+      <p>Filter, search and sort the latest values. Tap ☆ to add a destination to your trip shortlist (it's saved in this browser).</p>
+    </section>
+
+    <section class="card" id="shortlist-card">
+      <h2>⭐ My shortlist</h2>
+      <div class="chips" id="shortlist"></div>
+    </section>
+
+    <section class="card" id="content">
+      <div class="controls">
+        <label>Search
+          <input type="search" id="search" placeholder="Cancún, Paris, Nashville…">
+        </label>
+        <label>Region
+          <select id="f-region"><option value="">All regions</option></select>
+        </label>
+        <label>Vibe
+          <select id="f-vibe"><option value="">All vibes</option></select>
+        </label>
+        <label>Flying conditions
+          <select id="f-cat"><option value="">All</option></select>
+        </label>
+        <label>Sort by
+          <select id="sort-key"></select>
+        </label>
+        <label>Order
+          <button id="sort-dir" type="button">▼ High to low</button>
+        </label>
+        <label class="check"><input type="checkbox" id="only-starred"> Shortlist only</label>
+      </div>
+      <p class="muted small" id="count"></p>
+      <div class="table-wrap">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <footer>Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (async function () {
+    let data;
+    try { data = await loadData(); } catch (e) { showError(document.getElementById("content"), e); return; }
+    const latestDate = data.dates[data.dates.length - 1];
+    const items = data.rows.filter((r) => r.date === latestDate);
+    let shortlist = getShortlist();
+    const state = { q: "", region: "", vibe: "", cat: "", sortKey: "temp_f", dir: -1, starred: false };
+
+    const fill = (id, values) => {
+      const sel = document.getElementById(id);
+      [...new Set(values)].filter(Boolean).sort().forEach((v) => sel.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`));
+    };
+    fill("f-region", items.map((r) => r.region));
+    fill("f-vibe", items.map((r) => r.vibe));
+    fill("f-cat", items.map((r) => r.flight_category));
+    const sortSel = document.getElementById("sort-key");
+    sortSel.innerHTML = `<option value="item">Name</option>` +
+      NUMERIC.map((n) => `<option value="${n.key}">${n.label} (${n.unit})</option>`).join("");
+    sortSel.value = state.sortKey;
+
+    const cols = [
+      { key: "star", label: "★" },
+      { key: "item", label: "Destination" },
+      { key: "region", label: "Region" },
+      { key: "vibe", label: "Vibe" },
+      ...NUMERIC.map((n) => ({ key: n.key, label: `${n.label} ${n.unit}`, num: true })),
+      { key: "flight_category", label: "Flying" },
+    ];
+
+    function renderHead() {
+      document.getElementById("thead").innerHTML = "<tr>" + cols.map((c) => {
+        const sortable = c.num || c.key === "item";
+        const arrow = state.sortKey === c.key ? (state.dir < 0 ? " ▼" : " ▲") : "";
+        return `<th class="${c.num ? "num " : ""}${sortable ? "sortable " : ""}${state.sortKey === c.key ? "sorted" : ""}"
+          data-key="${c.key}" title="${sortable ? "Click to sort" : ""}">${c.label}${arrow}</th>`;
+      }).join("") + "</tr>";
+      document.querySelectorAll("th.sortable").forEach((th) => th.addEventListener("click", () => {
+        const k = th.dataset.key;
+        if (state.sortKey === k) state.dir *= -1; else { state.sortKey = k; state.dir = k === "item" ? 1 : -1; }
+        sortSel.value = k; render();
+      }));
+    }
+
+    function renderShortlist() {
+      const el = document.getElementById("shortlist");
+      const picked = items.filter((r) => shortlist.has(r.item_id));
+      el.innerHTML = picked.length
+        ? picked.map((r) => `<span class="chip on">⭐ ${esc(r.item)} · ${fmt(r.temp_f)}°F ${catHTML(r.flight_category)}</span>`).join("")
+        : '<span class="muted small">No favorites yet. Tap ☆ next to a destination.</span>';
+    }
+
+    function render() {
+      const q = state.q.trim().toLowerCase();
+      let list = items.filter((r) =>
+        (!q || r.item.toLowerCase().includes(q) || r.airport.toLowerCase().includes(q) || r.item_id.toLowerCase().includes(q)) &&
+        (!state.region || r.region === state.region) &&
+        (!state.vibe || r.vibe === state.vibe) &&
+        (!state.cat || r.flight_category === state.cat) &&
+        (!state.starred || shortlist.has(r.item_id)));
+      const k = state.sortKey;
+      list.sort((a, b) => {
+        if (k === "item") return state.dir * a.item.localeCompare(b.item);
+        const av = a[k], bv = b[k];
+        if (av == null && bv == null) return a.item.localeCompare(b.item);
+        if (av == null) return 1;   // empty values always go last
+        if (bv == null) return -1;
+        return state.dir * (av - bv) || a.item.localeCompare(b.item);
+      });
+      document.getElementById("sort-dir").textContent = state.dir < 0 ? "▼ High to low" : "▲ Low to high";
+      document.getElementById("count").textContent =
+        `${list.length} of ${items.length} destinations · values from ${latestDate}`;
+      renderHead();
+      document.getElementById("tbody").innerHTML = list.map((r) => `<tr>
+        <td><button class="star ${shortlist.has(r.item_id) ? "on" : ""}" data-id="${r.item_id}"
+          aria-label="Save ${esc(r.item)} to shortlist">${shortlist.has(r.item_id) ? "★" : "☆"}</button></td>
+        <td><strong>${esc(r.item)}</strong><span class="sub">${esc(r.item_id)} · ${esc(r.airport)}</span></td>
+        <td>${esc(r.region)}</td><td>${esc(r.vibe)}</td>
+        ${NUMERIC.map((n) => `<td class="num">${fmtNum(n.key, r[n.key])}</td>`).join("")}
+        <td>${catHTML(r.flight_category)}</td></tr>`).join("") ||
+        `<tr><td colspan="${cols.length}" class="muted">No destinations match these filters.</td></tr>`;
+      document.querySelectorAll(".star").forEach((b) => b.addEventListener("click", () => {
+        const id = b.dataset.id;
+        shortlist.has(id) ? shortlist.delete(id) : shortlist.add(id);
+        saveShortlist(shortlist);
+        render();
+      }));
+      renderShortlist();
+    }
+
+    document.getElementById("search").addEventListener("input", (e) => { state.q = e.target.value; render(); });
+    document.getElementById("f-region").addEventListener("change", (e) => { state.region = e.target.value; render(); });
+    document.getElementById("f-vibe").addEventListener("change", (e) => { state.vibe = e.target.value; render(); });
+    document.getElementById("f-cat").addEventListener("change", (e) => { state.cat = e.target.value; render(); });
+    document.getElementById("only-starred").addEventListener("change", (e) => { state.starred = e.target.checked; render(); });
+    sortSel.addEventListener("change", (e) => { state.sortKey = e.target.value; render(); });
+    document.getElementById("sort-dir").addEventListener("click", () => { state.dir *= -1; render(); });
+    render();
+  })();
+  </script>
+</body>
+</html>

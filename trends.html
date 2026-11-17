@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trends · Jetset Tracker</title>
+  <meta name="theme-color" content="#d9547a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="trends">
+  <nav class="nav">
+    <a class="brand" href="index.html">✈ Jetset <span>Tracker</span></a>
+    <div class="nav-links">
+      <a href="index.html" data-page="today">Today</a>
+      <a href="browse.html" data-page="browse">Browse</a>
+      <a href="trends.html" data-page="trends">Trends</a>
+    </div>
+  </nav>
+  <main>
+    <div id="offline" class="offline">You're offline. Showing the last data this device loaded.</div>
+    <section class="hero">
+      <h1>Trends</h1>
+      <p id="trend-intro">A report on everything the pipeline has collected so far. Every number below is computed in your browser from <code>data/history.csv</code>, so the page grows with the history.</p>
+    </section>
+
+    <div id="content">
+      <section class="card">
+        <h2>Every value over the days</h2>
+        <p class="muted small">Pick the destinations to show. Each chart is one numeric column of the history file, with one line per destination.</p>
+        <div class="controls">
+          <button type="button" id="pick-all">All</button>
+          <button type="button" id="pick-none">None</button>
+          <button type="button" id="pick-short">My shortlist</button>
+        </div>
+        <div class="chips" id="picker" style="margin-bottom:1rem"></div>
+        <div class="grid small-multiples" id="multiples"></div>
+      </section>
+
+      <div id="findings"></div>
+    </div>
+  </main>
+  <footer>Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
+
+  <script src="assets/app.js"></script>
+  <script src="assets/charts.js"></script>
+  <script>
+  (async function () {
+    let data;
+    try { data = await loadData(); } catch (e) { showError(document.getElementById("content"), e); return; }
+    const { rows, dates } = data;
+    const ids = [...new Set(rows.map((r) => r.item_id))].sort();
+    const nameOf = {}; rows.forEach((r) => { nameOf[r.item_id] = r.item; });
+    const color = (id) => itemColor(id, ids);
+    const first = dates[0], last = dates[dates.length - 1];
+    const byDate = {}; dates.forEach((d) => { byDate[d] = rowsOn(rows, d); });
+    document.getElementById("trend-intro").innerHTML +=
+      ` <strong>${dates.length}</strong> day${dates.length === 1 ? "" : "s"} (${first} to ${last}), <strong>${rows.length}</strong> rows, <strong>${ids.length}</strong> destinations.`;
+
+    // ---------- 1. each numeric value over the days, with an item picker ----------
+    const defaults = ["MMUN", "KBNA", "KLAS", "LFPG", "PHNL"].filter((i) => ids.includes(i));
+    let picked = new Set(defaults.length ? defaults : ids.slice(0, 5));
+    function drawMultiples() {
+      document.getElementById("picker").innerHTML = ids.map((id) =>
+        `<span class="chip ${picked.has(id) ? "on" : ""}" data-id="${id}"><i class="dot" style="background:${color(id)}"></i>${esc(nameOf[id])}</span>`).join("");
+      document.querySelectorAll("#picker .chip").forEach((c) => c.addEventListener("click", () => {
+        const id = c.dataset.id; picked.has(id) ? picked.delete(id) : picked.add(id); drawMultiples();
+      }));
+      const box = document.getElementById("multiples");
+      box.innerHTML = NUMERIC.map((n) => `<div><h3>${n.label} (${n.unit})</h3><div id="m-${n.key}"></div></div>`).join("");
+      NUMERIC.forEach((n) => {
+        const series = [...picked].sort().map((id) => {
+          const values = {};
+          dates.forEach((d) => { const r = byDate[d].get(id); values[d] = r ? r[n.key] : null; });
+          return { name: nameOf[id], color: color(id), values };
+        });
+        lineChart(document.getElementById(`m-${n.key}`), { dates, series, unit: n.unit, height: 220 });
+      });
+    }
+    document.getElementById("pick-all").onclick = () => { picked = new Set(ids); drawMultiples(); };
+    document.getElementById("pick-none").onclick = () => { picked = new Set(); drawMultiples(); };
+    document.getElementById("pick-short").onclick = () => {
+      const s = getShortlist(); picked = new Set(ids.filter((i) => s.has(i))); drawMultiples();
+    };
+    drawMultiples();
+
+    // ---------- findings ----------
+    const findings = document.getElementById("findings");
+    let n = 0;
+    function section(title, body, how, draw) {
+      n += 1;
+      const id = `f-${n}`;
+      findings.insertAdjacentHTML("beforeend", `<section class="card finding">
+        <h2>${title}</h2><p>${body}</p><p class="how">How it's computed: ${how}</p><div id="${id}"></div></section>`);
+      draw(document.getElementById(id));
+    }
+    const perItem = (key, fn) => ids.map((id) => {
+      const vals = rows.filter((r) => r.item_id === id && r[key] != null).map((r) => r[key]);
+      return { id, label: nameOf[id], value: vals.length ? fn(vals) : null, n: vals.length };
+    }).filter((x) => x.value != null);
+
+    // A. warmest on average
+    const avgTemp = perItem("temp_f", mean).sort((a, b) => b.value - a.value);
+    if (avgTemp.length) {
+      const top = avgTemp[0], bottom = avgTemp[avgTemp.length - 1];
+      section(
+        `${esc(top.label)} is the warmest destination, averaging ${fmt(top.value)}°F`,
+        `Across the ${dates.length} day${dates.length === 1 ? "" : "s"} in the history, ${esc(top.label)} has been the warmest place to land at ${fmt(top.value)}°F on average, while ${esc(bottom.label)} has been the chilliest at ${fmt(bottom.value)}°F, a gap of ${fmt(top.value - bottom.value)}°F. Pack accordingly!`,
+        `for each item_id, the mean of every <code>temp_f</code> value in history.csv; then the destinations are ranked from warmest to coolest.`,
+        (el) => barChart(el, { items: avgTemp.map((x) => ({ label: x.label, value: x.value, color: color(x.id) })), unit: "°F" }));
+    }
+
+    // B. change since the first run
+    const sinceFirst = ids.map((id) => {
+      const a = byDate[first].get(id), b = byDate[last].get(id);
+      return a && b && a.temp_f != null && b.temp_f != null ? { id, label: nameOf[id], value: Math.round((b.temp_f - a.temp_f) * 10) / 10 } : null;
+    }).filter(Boolean).sort((a, b) => b.value - a.value);
+    if (dates.length > 1 && sinceFirst.length) {
+      const big = [...sinceFirst].sort((a, b) => Math.abs(b.value) - Math.abs(a.value) || (a.id < b.id ? -1 : 1))[0];
+      const warmer = sinceFirst.filter((x) => x.value > 0).length, cooler = sinceFirst.filter((x) => x.value < 0).length;
+      section(
+        `${esc(big.label)} changed the most since the first run: ${big.value > 0 ? "+" : ""}${fmt(big.value)}°F`,
+        `Comparing the latest run (${last}) with the first (${first}), ${warmer} destination${warmer === 1 ? " is" : "s are"} warmer and ${cooler} ${cooler === 1 ? "is" : "are"} cooler. ${esc(big.label)} moved the most, from ${fmt(byDate[first].get(big.id).temp_f)}°F to ${fmt(byDate[last].get(big.id).temp_f)}°F.`,
+        `for each item_id present on both dates, <code>temp_f</code> on ${last} minus <code>temp_f</code> on ${first} (the first date in history.csv).`,
+        (el) => barChart(el, { items: sinceFirst.map((x) => ({ label: x.label, value: x.value })), unit: "°F" }));
+    } else {
+      section(`The change since the first run appears after the second day`,
+        `Only one day (${first}) is in the history so far. Once the pipeline runs again, this section compares every destination's latest temperature with its first one.`,
+        `<code>temp_f</code> on the latest date minus <code>temp_f</code> on the first date, per item_id.`,
+        (el) => barChart(el, { items: [] }));
+    }
+
+    // C. the day with the biggest move
+    const dayMoves = dates.slice(1).map((d, i) => {
+      const prev = dates[i];
+      const changes = [];
+      byDate[d].forEach((r, id) => {
+        const o = byDate[prev].get(id);
+        if (o && r.temp_f != null && o.temp_f != null) changes.push(Math.abs(r.temp_f - o.temp_f));
+      });
+      return { label: d, value: mean(changes), n: changes.length };
+    }).filter((x) => x.value != null);
+    if (dayMoves.length) {
+      const top = [...dayMoves].sort((a, b) => b.value - a.value)[0];
+      section(
+        `${top.label} was the most changeable day, with temperatures moving ${fmt(top.value)}°F on average`,
+        `On ${top.label}, the ${top.n} destinations reported on both that day and the day before moved by an average of ${fmt(top.value)}°F. The average across all ${dayMoves.length} day-to-day comparisons is ${fmt(mean(dayMoves.map((x) => x.value)))}°F.`,
+        `for each date after the first, the mean of |<code>temp_f</code> that day − <code>temp_f</code> the previous date| over every item_id present on both dates.`,
+        (el) => barChart(el, { items: dayMoves.map((x) => ({ label: x.label, value: x.value })), unit: "°F" }));
+    } else {
+      section(`The day with the biggest move appears after the second day`,
+        `This section needs two days of history to compare. It will update on its own after the next run.`,
+        `mean absolute day-to-day change in <code>temp_f</code> across destinations, per date.`,
+        (el) => barChart(el, { items: [] }));
+    }
+
+    // D. how far apart the destinations are
+    const spread = dates.map((d) => {
+      const vals = [...byDate[d].values()].filter((r) => r.temp_f != null);
+      if (!vals.length) return null;
+      vals.sort((a, b) => a.temp_f - b.temp_f);
+      return { date: d, value: Math.round((vals[vals.length - 1].temp_f - vals[0].temp_f) * 10) / 10, cold: vals[0], warm: vals[vals.length - 1] };
+    }).filter(Boolean);
+    if (spread.length) {
+      const now = spread[spread.length - 1];
+      const values = {}; spread.forEach((s) => { values[s.date] = s.value; });
+      section(
+        `On ${now.date} the destinations were ${fmt(now.value)}°F apart`,
+        `The warmest destination on the latest run was ${esc(now.warm.item)} (${fmt(now.warm.temp_f)}°F) and the coldest was ${esc(now.cold.item)} (${fmt(now.cold.temp_f)}°F). Across all ${spread.length} day${spread.length === 1 ? "" : "s"}, the gap has averaged ${fmt(mean(spread.map((s) => s.value)))}°F, ranging from ${fmt(Math.min(...spread.map((s) => s.value)))}°F to ${fmt(Math.max(...spread.map((s) => s.value)))}°F.`,
+        `for each date, the highest <code>temp_f</code> minus the lowest <code>temp_f</code> among that date's rows.`,
+        (el) => lineChart(el, { dates: spread.map((s) => s.date), series: [{ name: "Spread", color: "#d9547a", values }], unit: "°F" }));
+    }
+
+    // E. windiest airport
+    const wind = perItem("wind_kt", mean).sort((a, b) => b.value - a.value);
+    if (wind.length) {
+      const top = wind[0], calm = wind[wind.length - 1];
+      section(
+        `${esc(top.label)} is the windiest airport, averaging ${fmt(top.value)} knots`,
+        `Hold onto your hat (and your blowout) in ${esc(top.label)}: its wind has averaged ${fmt(top.value)} kt over ${top.n} observation${top.n === 1 ? "" : "s"}. ${esc(calm.label)} has been the calmest at ${fmt(calm.value)} kt. The average across all destinations is ${fmt(mean(wind.map((w) => w.value)))} kt.`,
+        `for each item_id, the mean of every <code>wind_kt</code> value in history.csv.`,
+        (el) => barChart(el, { items: wind.map((x) => ({ label: x.label, value: x.value, color: color(x.id) })), unit: "kt" }));
+    }
+
+    // F. smoothest flying
+    const vfr = ids.map((id) => {
+      const rs = rows.filter((r) => r.item_id === id && r.flight_category);
+      return rs.length ? { id, label: nameOf[id], value: 100 * rs.filter((r) => r.flight_category === "VFR").length / rs.length, n: rs.length } : null;
+    }).filter(Boolean).sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+    if (vfr.length) {
+      const perfect = vfr.filter((v) => v.value === 100).length;
+      const worst = vfr[vfr.length - 1];
+      section(
+        `${perfect} of ${vfr.length} destinations have had clear-sky (VFR) flying on every run`,
+        `VFR means a high ceiling and good visibility, the conditions least likely to cause weather delays. ${esc(worst.label)} has had the fewest clear runs, with VFR on ${fmt(worst.value, 0)}% of its ${worst.n} observation${worst.n === 1 ? "" : "s"}. Across all rows, ${fmt(100 * rows.filter((r) => r.flight_category === "VFR").length / rows.length, 0)}% were VFR.`,
+        `for each item_id, the number of rows whose <code>flight_category</code> is VFR divided by its number of rows, times 100.`,
+        (el) => barChart(el, { items: vfr.map((x) => ({ label: x.label, value: x.value, color: "#3d9970" })), unit: "%", digits: 0 }));
+    }
+  })();
+  </script>
+</body>
+</html>
