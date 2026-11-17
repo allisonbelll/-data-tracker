@@ -8,7 +8,9 @@
 Every day, GitHub Actions runs this tool on its own. It downloads the latest weather and flying conditions at 19 airports
 that serve popular bachelorette, beach, island and city-break destinations (Cancún, Nashville, Las Vegas, Paris and others).
 It adds them to a history with one row per airport per day, opens a GitHub Issue listing what moved, and publishes the
-result to an installable website with three pages: **Today**, **Browse** and **Trends**.
+result to an installable website with three pages: **Today**, **Browse** and **Trends**. The Today page also has an
+interactive 3D flight globe: routes from home (XNA, Fayetteville) to every destination, with little planes you can tap to see
+a boarding pass with the distance, estimated flight time and today's weather and flying conditions at the destination.
 
 ## Build the history from the raw files
 
@@ -145,18 +147,22 @@ day counts once. If the second run's fetch fails, the earlier raw file from that
 | `tests/test_history.py` | Tests the history logic: build from raw files, reproducibility, a second run on the same day, failing sources, status |
 | `tests/test_issue.py` | Tests the issue text |
 | `tests/fixtures/metar_sample.json` | A sample source response used by the tests |
-| `.github/workflows/daily.yml` | Runs the pipeline every day (plus a backup run) and commits `data/` |
+| `.github/workflows/daily.yml` | Runs the pipeline every day (plus a backup run), saves the globe's map file once, and commits `data/` |
 | `.github/workflows/tests.yml` | Runs the tests on every push |
 | `data/raw/<date>/*.gz` | Raw source responses, one folder per day |
 | `data/history.csv` | The history, one row per airport per day |
 | `data/status.json` | The latest run |
 | `data/runs.csv` | Log of every source call in every run (time, source, ok, count, error) |
-| `index.html` | Today page: last run, source status, counts, latest values with changes, biggest moves |
+| `index.html` | Today page: last run, source status, counts, the flight globe and departures board, latest values with changes, biggest moves |
 | `browse.html` | Browse page: filters (region, vibe, flight category), search, sort by every numeric column, star shortlist saved in the browser |
 | `trends.html` | Trends page: a chart of every numeric value over the days with an item picker, and six findings computed from the history |
 | `assets/style.css` | The shared fonts, colors and layout |
 | `assets/app.js` | Shared code: loading and parsing the data files, the move rule, the shortlist, formatting |
 | `assets/charts.js` | The line and bar charts (plain SVG, no outside library, so they work offline) |
+| `assets/globe.js` | The 3D flight globe: airport coordinates, great-circle routes from XNA, animated planes, click-for-boarding-pass, departures board |
+| `assets/decor.js` | The flight and wedding illustrations (plane with a "Bride Tribe" banner, diamond ring, champagne) and vibe icons |
+| `assets/vendor/d3-geo.min.js`, `assets/vendor/d3-array.min.js` | d3-geo 3.1.1 and d3-array 3.2.4 (ISC license), used for the globe's projection |
+| `assets/land-110m.json` | World coastlines (world-atlas, Natural Earth 1:110m, public domain), saved by the daily workflow on its first run |
 | `manifest.webmanifest` | Web app manifest that makes the site installable |
 | `sw.js` | Service worker: caches the site, loads data from the network when online and from the cache when offline |
 | `icons/` | App icons |

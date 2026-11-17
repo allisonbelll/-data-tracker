@@ -34,11 +34,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -m tracker.run
+      - name: Save the globe's coastline map once (static; used by the Today page's flight globe)
+        continue-on-error: true
+        run: |
+          if [ ! -s assets/land-110m.json ]; then
+            curl -fsSL --retry 2 https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json -o assets/land-110m.json || rm -f assets/land-110m.json
+          fi
       - name: Commit raw files, history and status
         run: |
           git config user.name "jetset-tracker-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data
+          if [ -s assets/land-110m.json ]; then git add assets/land-110m.json; fi
           if git diff --cached --quiet; then
             echo "Nothing to commit"
           else

@@ -23,13 +23,39 @@
   <main>
     <div id="offline" class="offline">You're offline. Showing the last data this device loaded.</div>
     <section class="hero">
-      <h1>Where should the girls fly next? 💅</h1>
-      <p>Weather and flying conditions at 19 bachelorette, beach and city-break airports, updated every day.</p>
+      <h1>Where should the girls fly next?</h1>
+      <p>Bachelorette weekends, honeymoons and girls' trips: weather and flying conditions at 19 dreamy destinations, updated every day. ✈️💍🥂</p>
       <p class="small" id="last-run">Loading the latest run…</p>
     </section>
 
     <div id="content">
       <div class="grid stats" id="stats"></div>
+
+      <section class="card globe-card">
+        <h2>✈ Today's flight map</h2>
+        <p class="muted small">Every route leaves from home (XNA, Fayetteville). Drag to spin the globe, then tap a little plane
+          or a destination to see where it's headed. Route colors show today's flying conditions at the destination.</p>
+        <div class="globe-layout">
+          <div class="globe-wrap">
+            <canvas id="globe" aria-label="Interactive globe of flights from XNA to each destination"></canvas>
+            <div class="globe-tools">
+              <button type="button" id="g-in" aria-label="Zoom in">＋</button>
+              <button type="button" id="g-out" aria-label="Zoom out">－</button>
+              <button type="button" id="g-home">Home</button>
+              <button type="button" id="g-spin">Pause spin</button>
+            </div>
+            <div class="legend-cats">
+              <span><span class="cat VFR">VFR</span> clear</span><span><span class="cat MVFR">MVFR</span> some clouds</span>
+              <span><span class="cat IFR">IFR</span> low clouds</span><span><span class="cat LIFR">LIFR</span> fog</span>
+            </div>
+          </div>
+          <div>
+            <div id="flight-info"></div>
+            <h3 style="color:#fff">Departures from XNA</h3>
+            <div class="board" id="board"></div>
+          </div>
+        </div>
+      </section>
 
       <div class="grid two">
         <section class="card">
@@ -59,7 +85,7 @@
           <table>
             <thead>
               <tr>
-                <th>Destination</th><th>Region</th><th class="num">Temp °F</th><th class="num">Humidity %</th>
+                <th>Destination</th><th>Vibe</th><th class="num">Temp °F</th><th class="num">Humidity %</th>
                 <th class="num">Wind kt</th><th class="num">Visibility mi</th><th class="num">Ceiling ft</th>
                 <th class="num">Pressure hPa</th><th>Flying</th>
               </tr>
@@ -70,9 +96,13 @@
       </section>
     </div>
   </main>
-  <footer>Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
+  <footer>Cleared for takeoff · Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
 
   <script src="assets/app.js"></script>
+  <script src="assets/decor.js"></script>
+  <script src="assets/vendor/d3-array.min.js"></script>
+  <script src="assets/vendor/d3-geo.min.js"></script>
+  <script src="assets/globe.js"></script>
   <script>
   (async function () {
     const content = document.getElementById("content");
@@ -81,6 +111,20 @@
     const { rows, status } = data;
     const runDate = status.run_date || data.dates[data.dates.length - 1];
     const diff = compare(rows, runDate);
+
+    if (window.d3 && diff.today.size) {
+      const globe = initGlobe({
+        canvas: document.getElementById("globe"),
+        infoEl: document.getElementById("flight-info"),
+        boardEl: document.getElementById("board"),
+        latestRows: diff.today,
+      });
+      globe.start();
+      document.getElementById("g-in").onclick = () => globe.zoomBy(1.25);
+      document.getElementById("g-out").onclick = () => globe.zoomBy(0.8);
+      document.getElementById("g-home").onclick = () => globe.home();
+      document.getElementById("g-spin").onclick = (e) => { e.target.textContent = globe.toggleSpin() ? "Pause spin" : "Spin"; };
+    }
 
     document.getElementById("last-run").innerHTML =
       `Last run: <strong>${esc(localTime(status.run_time))}</strong> <span class="muted">(${esc(status.run_time)} UTC)</span>`;
@@ -129,7 +173,7 @@
       const o = diff.before.get(r.item_id);
       return `<tr>
         <td><strong>${esc(r.item)}</strong><span class="sub">${esc(r.item_id)} · ${esc(r.airport)}</span></td>
-        <td>${esc(r.region)}</td>
+        <td>${vibeHTML(r.vibe)}</td>
         ${cell(r, o, "temp_f")}${cell(r, o, "humidity_pct", 0)}${cell(r, o, "wind_kt", 0)}
         ${cell(r, o, "visibility_mi")}${cell(r, o, "ceiling_ft", 0)}${cell(r, o, "pressure_hpa")}
         <td>${catHTML(r.flight_category)}</td></tr>`;
