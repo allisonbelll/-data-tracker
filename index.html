@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Today · Jetset Tracker</title>
+  <meta name="description" content="Daily weather and flying conditions at 19 girls'-trip airports.">
+  <meta name="theme-color" content="#d9547a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="today">
+  <nav class="nav">
+    <a class="brand" href="index.html">✈ Jetset <span>Tracker</span></a>
+    <div class="nav-links">
+      <a href="index.html" data-page="today">Today</a>
+      <a href="browse.html" data-page="browse">Browse</a>
+      <a href="trends.html" data-page="trends">Trends</a>
+    </div>
+  </nav>
+  <main>
+    <div id="offline" class="offline">You're offline. Showing the last data this device loaded.</div>
+    <section class="hero">
+      <h1>Where should the girls fly next? 💅</h1>
+      <p>Weather and flying conditions at 19 bachelorette, beach and city-break airports, updated every day.</p>
+      <p class="small" id="last-run">Loading the latest run…</p>
+    </section>
+
+    <div id="content">
+      <div class="grid stats" id="stats"></div>
+
+      <div class="grid two">
+        <section class="card">
+          <h2>Biggest moves since the previous run</h2>
+          <p class="muted small" id="moves-rule"></p>
+          <ul class="moves" id="moves"></ul>
+          <h3 style="margin-top:1rem">Flight category changes</h3>
+          <ul class="moves" id="cat-changes"></ul>
+        </section>
+        <section class="card">
+          <h2>Sources</h2>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Source</th><th>Status</th><th class="num">Rows</th><th>Format</th></tr></thead>
+              <tbody id="sources"></tbody>
+            </table>
+          </div>
+          <h3 style="margin-top:1rem">Appeared / disappeared today</h3>
+          <p id="new-gone" class="small"></p>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Latest values</h2>
+        <p class="muted small" id="latest-note"></p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Destination</th><th>Region</th><th class="num">Temp °F</th><th class="num">Humidity %</th>
+                <th class="num">Wind kt</th><th class="num">Visibility mi</th><th class="num">Ceiling ft</th>
+                <th class="num">Pressure hPa</th><th>Flying</th>
+              </tr>
+            </thead>
+            <tbody id="latest"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer>Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
+
+  <script src="assets/app.js"></script>
+  <script>
+  (async function () {
+    const content = document.getElementById("content");
+    let data;
+    try { data = await loadData(); } catch (e) { showError(content, e); return; }
+    const { rows, status } = data;
+    const runDate = status.run_date || data.dates[data.dates.length - 1];
+    const diff = compare(rows, runDate);
+
+    document.getElementById("last-run").innerHTML =
+      `Last run: <strong>${esc(localTime(status.run_time))}</strong> <span class="muted">(${esc(status.run_time)} UTC)</span>`;
+
+    const stats = [
+      ["Airports today", status.items],
+      ["Days with data", status.days_with_success],
+      ["First run", status.first_run_date || "–"],
+      ["Previous run", diff.prev || "–"],
+      ["New today", (status.new_today || []).length],
+      ["Gone today", (status.gone_today || []).length],
+    ];
+    document.getElementById("stats").innerHTML = stats.map(([l, v]) =>
+      `<div class="stat"><div class="label">${l}</div><div class="value">${esc(v)}</div></div>`).join("");
+
+    document.getElementById("sources").innerHTML = (status.sources || []).map((s) => `
+      <tr><td>${esc(s.name)}${s.error ? `<span class="sub">${esc(s.error)}</span>` : ""}</td>
+      <td><span class="badge ${s.ok ? "ok" : "bad"}">${s.ok ? "OK" : "Failed"}</span></td>
+      <td class="num">${s.count}</td><td>${esc(s.format || "")}</td></tr>`).join("");
+
+    const name = (id) => { const r = rows.find((x) => x.item_id === id); return r ? `${r.item} (${id})` : id; };
+    const ng = [];
+    ng.push(`<strong>Appeared:</strong> ${(status.new_today || []).map(name).join(", ") || "none"}`);
+    ng.push(`<strong>Disappeared:</strong> ${(status.gone_today || []).map(name).join(", ") || "none"}`);
+    document.getElementById("new-gone").innerHTML = ng.join("<br>");
+
+    document.getElementById("moves-rule").textContent =
+      `Rule: the absolute change in temperature (°F) since ${diff.prev || "the previous run"}, largest ${MOVE_LIMIT} shown.`;
+    const movesEl = document.getElementById("moves");
+    if (!diff.prev) movesEl.innerHTML = "<li class='muted'>This is the first day of history, so there's nothing to compare yet. Check back after tomorrow's run!</li>";
+    else if (!diff.moves.length) movesEl.innerHTML = "<li class='muted'>No changes today.</li>";
+    else movesEl.innerHTML = diff.moves.map((m) => `
+      <li><span><strong>${esc(m.item)}</strong> <span class="muted small">${m.item_id}</span></span>
+      <span>${fmt(m.old)}°F → <strong>${fmt(m.new)}°F</strong> ${deltaHTML(m.new, m.old)}</span></li>`).join("");
+    document.getElementById("cat-changes").innerHTML = diff.catChanges.length
+      ? diff.catChanges.map((c) => `<li><span>${esc(c.item)}</span><span>${catHTML(c.old)} → ${catHTML(c.new)}</span></li>`).join("")
+      : "<li class='muted'>None.</li>";
+
+    document.getElementById("latest-note").textContent = diff.prev
+      ? `Values from ${diff.date}; arrows show the change since ${diff.prev}.`
+      : `Values from ${diff.date}.`;
+    const latest = [...diff.today.values()].sort((a, b) => a.item.localeCompare(b.item));
+    const cell = (r, o, key, digits = 1) =>
+      `<td class="num">${fmtNum(key, r[key])}${o ? deltaHTML(r[key], o[key], digits) : ""}</td>`;
+    document.getElementById("latest").innerHTML = latest.map((r) => {
+      const o = diff.before.get(r.item_id);
+      return `<tr>
+        <td><strong>${esc(r.item)}</strong><span class="sub">${esc(r.item_id)} · ${esc(r.airport)}</span></td>
+        <td>${esc(r.region)}</td>
+        ${cell(r, o, "temp_f")}${cell(r, o, "humidity_pct", 0)}${cell(r, o, "wind_kt", 0)}
+        ${cell(r, o, "visibility_mi")}${cell(r, o, "ceiling_ft", 0)}${cell(r, o, "pressure_hpa")}
+        <td>${catHTML(r.flight_category)}</td></tr>`;
+    }).join("") || "<tr><td colspan='9' class='muted'>No rows for the latest run.</td></tr>";
+  })();
+  </script>
+</body>
+</html>
