@@ -22,7 +22,7 @@
   <main>
     <div id="offline" class="offline">You're offline. Showing the last data this device loaded.</div>
     <section class="hero">
-      <h1>Browse destinations</h1>
+      <h1>Browse destinations 💍</h1>
       <p>Filter, search and sort the latest values. Tap ☆ to add a destination to your trip shortlist (it's saved in this browser).</p>
     </section>
 
@@ -62,9 +62,10 @@
       </div>
     </section>
   </main>
-  <footer>Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
+  <footer>Cleared for takeoff · Data: NOAA Aviation Weather Center METAR reports · Built with GitHub Actions &amp; Pages</footer>
 
   <script src="assets/app.js"></script>
+  <script src="assets/decor.js"></script>
   <script>
   (async function () {
     let data;
@@ -142,7 +143,7 @@
         <td><button class="star ${shortlist.has(r.item_id) ? "on" : ""}" data-id="${r.item_id}"
           aria-label="Save ${esc(r.item)} to shortlist">${shortlist.has(r.item_id) ? "★" : "☆"}</button></td>
         <td><strong>${esc(r.item)}</strong><span class="sub">${esc(r.item_id)} · ${esc(r.airport)}</span></td>
-        <td>${esc(r.region)}</td><td>${esc(r.vibe)}</td>
+        <td>${esc(r.region)}</td><td>${vibeHTML(r.vibe)}</td>
         ${NUMERIC.map((n) => `<td class="num">${fmtNum(n.key, r[n.key])}</td>`).join("")}
         <td>${catHTML(r.flight_category)}</td></tr>`).join("") ||
         `<tr><td colspan="${cols.length}" class="muted">No destinations match these filters.</td></tr>`;
