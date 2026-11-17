@@ -1,0 +1,48 @@
+name: Daily run
+
+on:
+  schedule:
+    - cron: "17 13 * * *"   # every day at 13:17 UTC (7:17 a.m. Central)
+    - cron: "41 21 * * *"   # backup at 21:41 UTC; a second run the same day just replaces that day
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: [".github/workflows/daily.yml", "tracker/**"]   # run right away when the pipeline changes
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: daily-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run the tests (a failure is reported but never blocks the day's data)
+        continue-on-error: true
+        run: python -m pytest -q
+      - name: Fetch sources, build history and status, open the issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m tracker.run
+      - name: Commit raw files, history and status
+        run: |
+          git config user.name "jetset-tracker-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Daily run $(date -u +%F)"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
