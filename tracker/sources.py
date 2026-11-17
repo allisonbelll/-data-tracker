@@ -15,10 +15,18 @@ from .config import AIRPORTS, USER_AGENT
 METAR_URL = "https://aviationweather.gov/api/data/metar?ids={ids}&format=json"
 
 
-def http_get(url, timeout=60):
+def http_get(url, timeout=60, attempts=2):
+    """GET with one retry, since a single network hiccup shouldn't cost a day of data."""
+    import time
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.read()
+        except Exception:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(10)
 
 
 # ---------- helpers ----------
