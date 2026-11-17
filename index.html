@@ -57,8 +57,15 @@
         </div>
       </section>
 
+      <section class="card passport-page">
+        <h2>🛂 Passport stamps</h2>
+        <p class="muted small">One stamp per destination from the latest run: today's temperature, and <em>arrived</em> (clear, VFR),
+          <em>admitted</em> (some clouds, MVFR) or <em>delayed</em> (low clouds or fog, IFR/LIFR). Tap a stamp to see that flight on the globe.</p>
+        <div class="stamps-grid" id="stamps"></div>
+      </section>
+
       <div class="grid two">
-        <section class="card">
+        <section class="card airmail">
           <h2>Biggest moves since the previous run</h2>
           <p class="muted small" id="moves-rule"></p>
           <ul class="moves" id="moves"></ul>
@@ -120,11 +127,24 @@
         latestRows: diff.today,
       });
       globe.start();
+      document.getElementById("stamps").addEventListener("click", (e) => {
+        const a = e.target.closest("a[data-id]");
+        if (!a) return;
+        e.preventDefault();
+        const f = globe.flights.find((x) => x.row.item_id === a.dataset.id);
+        if (f) { globe.select(f); document.getElementById("globe").scrollIntoView({ behavior: "smooth", block: "center" }); }
+      });
       document.getElementById("g-in").onclick = () => globe.zoomBy(1.25);
       document.getElementById("g-out").onclick = () => globe.zoomBy(0.8);
       document.getElementById("g-home").onclick = () => globe.home();
       document.getElementById("g-spin").onclick = (e) => { e.target.textContent = globe.toggleSpin() ? "Pause spin" : "Spin"; };
     }
+
+    const stampDate = (() => { const [y, m, d] = diff.date.split("-").map(Number);
+      return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).toUpperCase(); })();
+    document.getElementById("stamps").innerHTML = [...diff.today.values()]
+      .sort((a, b) => a.item.localeCompare(b.item))
+      .map((r) => `<a href="#" data-id="${esc(r.item_id)}" title="${esc(r.item)}: see this flight on the globe">${passportStampSVG(r, stampDate)}</a>`).join("");
 
     document.getElementById("last-run").innerHTML =
       `Last run: <strong>${esc(localTime(status.run_time))}</strong> <span class="muted">(${esc(status.run_time)} UTC)</span>`;

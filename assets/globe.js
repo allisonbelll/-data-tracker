@@ -181,17 +181,17 @@ function initGlobe({ canvas, infoEl, boardEl, latestRows }) {
     // atmosphere and ocean
     const cx = width / 2, cy = height / 2;
     const glow = ctx.createRadialGradient(cx, cy, r * 0.95, cx, cy, r * 1.12);
-    glow.addColorStop(0, "rgba(247, 201, 214, .55)"); glow.addColorStop(1, "rgba(247, 201, 214, 0)");
+    glow.addColorStop(0, "rgba(232, 214, 176, .45)"); glow.addColorStop(1, "rgba(232, 214, 176, 0)");
     ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx, cy, r * 1.12, 0, 2 * Math.PI); ctx.fill();
     const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
-    ocean.addColorStop(0, "#5b3f8c"); ocean.addColorStop(0.6, "#3a2a6b"); ocean.addColorStop(1, "#241a4a");
+    ocean.addColorStop(0, "#5f86a3"); ocean.addColorStop(0.6, "#3c607f"); ocean.addColorStop(1, "#22405a");
     ctx.fillStyle = ocean; ctx.beginPath(); path({ type: "Sphere" }); ctx.fill();
 
-    ctx.strokeStyle = "rgba(255,255,255,.08)"; ctx.lineWidth = 0.7;
+    ctx.strokeStyle = "rgba(239,226,196,.16)"; ctx.lineWidth = 0.7;
     ctx.beginPath(); path(graticule); ctx.stroke();
 
     if (land) {
-      ctx.fillStyle = "#f7c9d6"; ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 0.6;
+      ctx.fillStyle = "#efe2c4"; ctx.strokeStyle = "rgba(122, 92, 52, .65)"; ctx.lineWidth = 0.7;
       drawLand(ctx, path, land, [-rotation[0], -rotation[1]], cx * dpr, cy * dpr);
     }
 
@@ -216,7 +216,7 @@ function initGlobe({ canvas, infoEl, boardEl, latestRows }) {
       ctx.beginPath(); ctx.arc(x, y, selected === f ? 6 : 4.2, 0, 2 * Math.PI);
       ctx.fillStyle = f.color; ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
       if (!selected || selected === f || zoom > 1.4) {
-        ctx.fillStyle = "#fff"; ctx.strokeStyle = "rgba(36,26,74,.85)"; ctx.lineWidth = 3;
+        ctx.fillStyle = "#fff"; ctx.strokeStyle = "rgba(29,42,74,.9)"; ctx.lineWidth = 3;
         ctx.strokeText(f.row.item, x + 7, y - 6); ctx.fillText(f.row.item, x + 7, y - 6);
       }
       hits.push({ x, y, f, radius: 9 });
@@ -225,10 +225,10 @@ function initGlobe({ canvas, infoEl, boardEl, latestRows }) {
     // home: a little heart
     if (visible(HOME.coord)) {
       const [x, y] = projection(HOME.coord);
-      ctx.save(); ctx.translate(x, y); ctx.fillStyle = "#ff6f91"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
+      ctx.save(); ctx.translate(x, y); ctx.fillStyle = "#c46b7a"; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(0, 4); ctx.bezierCurveTo(-9, -3, -4, -10, 0, -5); ctx.bezierCurveTo(4, -10, 9, -3, 0, 4);
       ctx.fill(); ctx.stroke(); ctx.restore();
-      ctx.fillStyle = "#fff"; ctx.strokeStyle = "rgba(36,26,74,.85)"; ctx.lineWidth = 3;
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "rgba(29,42,74,.9)"; ctx.lineWidth = 3;
       ctx.strokeText("XNA · home", x + 9, y + 12); ctx.fillText("XNA · home", x + 9, y + 12);
     }
 

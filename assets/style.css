@@ -1,21 +1,28 @@
 /* Jetset Tracker: one set of fonts and colors for every page */
 :root {
-  --bg: #fff6f8;
-  --card: #ffffff;
-  --ink: #3b1f2b;
-  --muted: #8a6a77;
-  --line: #f1d6de;
-  --rose: #d9547a;
-  --rose-soft: #fbe3ea;
-  --blush: #f7c9d6;
-  --gold: #b8913a;
-  --up: #c2410c;
-  --down: #2563eb;
-  --ok: #2f855a;
-  --bad: #c53030;
+  --bg: #efe6d4;
+  --card: #fbf7ee;
+  --ink: #1d2a4a;
+  --muted: #7d7468;
+  --line: #e2d6bf;
+  --rose: #b8574f;
+  --rose-soft: #f3e3d3;
+  --blush: #dcc6a5;
+  --gold: #c9a24a;
+  --navy: #1d2a4a;
+  --forest: #1f5a44;
+  --sage: #a9c3b8;
+  --tan: #d8c3a5;
+  --caramel: #b9783f;
+  --up: #b9623a;
+  --down: #2f5d8a;
+  --ok: #2f7a55;
+  --bad: #b03a3a;
   --serif: "Didot", "Bodoni 72", "Playfair Display", Georgia, "Times New Roman", serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  --radius: 16px;
+  --type: "American Typewriter", "Courier New", Courier, monospace;
+  --hand: "Bradley Hand", "Segoe Print", "Marker Felt", cursive;
+  --radius: 10px;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -219,3 +226,100 @@ body {
 .boarding-pass .muted { color: var(--muted); }
 .brand-icon svg { display: block; flex: none; }
 .brand .brand-icon { color: #fff; }
+
+
+/* ===================== vintage travel scrapbook ===================== */
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='420' viewBox='0 0 520 420'%3E%3Cg fill='none' stroke='%23b9a27c' stroke-opacity='.28' stroke-width='1'%3E%3Cpath d='M0 70 Q260 40 520 70'/%3E%3Cpath d='M0 170 Q260 140 520 170'/%3E%3Cpath d='M0 270 Q260 240 520 270'/%3E%3Cpath d='M0 370 Q260 340 520 370'/%3E%3Cpath d='M90 0 Q70 210 90 420'/%3E%3Cpath d='M260 0 Q240 210 260 420'/%3E%3Cpath d='M430 0 Q410 210 430 420'/%3E%3C/g%3E%3Cpath d='M40 300 q30-40 80-20 q40 20 30 60 q-20 40 -70 30 q-50 -10 -40 -70z M330 60 q50-30 110 0 q30 30 0 70 q-40 30 -90 10 q-40 -30 -20 -80z' fill='%23a9c3b8' fill-opacity='.16'/%3E%3Cpath d='M120 120 C 200 60 300 220 400 150' fill='none' stroke='%23b8574f' stroke-opacity='.25' stroke-width='1.5' stroke-dasharray='3 6'/%3E%3Cg transform='translate(450 330)' stroke='%23b9a27c' stroke-opacity='.4' fill='none'%3E%3Ccircle r='26'/%3E%3Cpath d='M0 -34 L5 -5 L0 0 L-5 -5z M0 34 L5 5 L0 0 L-5 5z M-34 0 L-5 5 L0 0 L-5 -5z M34 0 L5 5 L0 0 L5 -5z'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
+}
+.nav { background: rgba(244, 236, 220, .94); border-bottom: 1px solid var(--line); }
+.nav-links a.active { background: var(--navy); }
+.brand .brand-icon { background: var(--navy); color: #fff; }
+.brand span { color: var(--caramel); }
+.brand .brand-icon { color: #fff; }
+
+.hero {
+  background: #fbf6ea;
+  background-image: repeating-linear-gradient(0deg, rgba(185,162,124,.08) 0 1px, transparent 1px 28px);
+  border: 1px solid var(--line); border-radius: 6px;
+  box-shadow: 0 1px 0 #fff inset, 0 8px 22px rgba(80, 60, 30, .12);
+  margin-bottom: .6rem;
+}
+.hero h1 { color: var(--navy); }
+.typestrip {
+  display: inline-block; justify-self: start; font-family: var(--type); font-size: .85rem; letter-spacing: .18em;
+  background: #fff; color: var(--ink); padding: .25rem .7rem; margin-bottom: .5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18); transform: rotate(-1.2deg);
+}
+
+/* paper cards with washi tape */
+.card { position: relative; background: var(--card); border-radius: 6px; box-shadow: 0 6px 16px rgba(80,60,30,.09); }
+.card::before {
+  content: ""; position: absolute; top: -11px; left: 28px; width: 96px; height: 22px; transform: rotate(-4deg);
+  background: repeating-linear-gradient(45deg, rgba(169,195,184,.75) 0 7px, rgba(244,236,220,.75) 7px 14px);
+  box-shadow: 0 1px 2px rgba(0,0,0,.08); pointer-events: none;
+}
+.card:nth-of-type(2n)::before { left: auto; right: 34px; transform: rotate(5deg);
+  background: repeating-linear-gradient(-45deg, rgba(196,107,122,.55) 0 6px, rgba(255,255,255,.6) 6px 12px); }
+.card:nth-of-type(3n)::before { background: rgba(217,191,140,.7); }
+.card.airmail { border: 7px solid transparent; border-image: repeating-linear-gradient(-45deg, #b8574f 0 10px, #fff 10px 20px, #1d2a4a 20px 30px, #fff 30px 40px) 7; border-radius: 0; }
+.card.airmail::before { display: none; }
+.card h2, .finding h2 { color: var(--navy); }
+th { font-family: var(--type); letter-spacing: .1em; }
+.stat { background: var(--card); border-left-color: var(--caramel); border-radius: 6px; }
+.stat .label { font-family: var(--type); }
+.stat .label::before { color: var(--caramel); }
+.stat .value { color: var(--navy); }
+
+/* stamp strip under each page header */
+.stamp-strip { overflow-x: auto; margin: 0 0 1.2rem; padding: 0 .2rem; scrollbar-width: thin; }
+.stamp-strip svg { display: block; height: 96px; width: 100%; }
+
+/* passport stamps on the Today page */
+.passport-page {
+  background: #f6efdf;
+  background-image: repeating-radial-gradient(circle at 20% 30%, rgba(31,90,68,.05) 0 2px, transparent 2px 9px),
+                    repeating-linear-gradient(115deg, rgba(29,42,74,.035) 0 1px, transparent 1px 7px);
+}
+.stamps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .4rem; }
+.stamps-grid svg { width: 100%; height: auto; display: block; }
+.stamps-grid a { display: block; text-decoration: none; transition: transform .15s; }
+.stamps-grid a:hover { transform: scale(1.06) rotate(-2deg); }
+
+/* footer ticket */
+.ticket { display: inline-flex; margin: 0 auto 1rem; background: #fffaf0; border: 1px solid var(--tan); border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(80,60,30,.15); text-align: left; transform: rotate(-1deg); }
+.ticket-main { padding: .6rem 1rem; display: flex; flex-direction: column; border-right: 2px dashed var(--tan); }
+.ticket-kicker, .ticket-sub { font-family: var(--type); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.ticket-main strong { font-family: var(--serif); font-size: 1.25rem; color: var(--navy); letter-spacing: .06em; }
+.ticket-stub { padding: .6rem .9rem; font-family: var(--type); font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; justify-content: center; }
+.ticket-stub b { color: var(--rose); font-size: .95rem; }
+footer .footer-path { display: none; }
+
+/* globe card in vintage navy */
+.globe-card { background: linear-gradient(160deg, #1d2a4a 0%, #22365a 55%, #1f4a48 100%); }
+.globe-card::before { background: rgba(217,191,140,.8); }
+.board { background: #141c30; }
+.boarding-pass { background: #fffaf0; }
+.bp-stub { background: #f6efdf; border-left-color: var(--tan); }
+.bp-label { color: var(--caramel); }
+.bp-plane { color: var(--caramel); border-bottom-color: var(--tan); }
+.chip.on { background: #efe3cc; border-color: var(--caramel); }
+.chip, input[type=search], select, button { border-color: var(--blush); }
+button.primary { background: var(--navy); border-color: var(--navy); }
+.star.on { color: var(--caramel); }
+.card.globe-card h2 { color: #fff; }
+.hero { grid-template-columns: 1fr minmax(260px, 430px); }
+.stamp-strip svg { height: 108px; }
+.globe-layout > * { min-width: 0; }
+@media (max-width: 640px) {
+  .board-head, .board-row { grid-template-columns: 3.5rem 1fr 2.3rem 6.2rem; font-size: .72rem; gap: .25rem; }
+  .globe-tools button { padding: .25rem .45rem; font-size: .8rem; }
+  .boarding-pass { grid-template-columns: 1fr; }
+  .bp-stub { border-left: 0; border-top: 2px dashed var(--tan); }
+  .ticket { transform: none; }
+}

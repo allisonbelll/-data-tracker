@@ -153,14 +153,14 @@ day counts once. If the second run's fetch fails, the earlier raw file from that
 | `data/history.csv` | The history, one row per airport per day |
 | `data/status.json` | The latest run |
 | `data/runs.csv` | Log of every source call in every run (time, source, ok, count, error) |
-| `index.html` | Today page: last run, source status, counts, the flight globe and departures board, latest values with changes, biggest moves |
+| `index.html` | Today page: last run, source status, counts, the flight globe and departures board, passport stamps (one per destination from the latest run), latest values with changes, biggest moves |
 | `browse.html` | Browse page: filters (region, vibe, flight category), search, sort by every numeric column, star shortlist saved in the browser |
 | `trends.html` | Trends page: a chart of every numeric value over the days with an item picker, and six findings computed from the history |
 | `assets/style.css` | The shared fonts, colors and layout |
 | `assets/app.js` | Shared code: loading and parsing the data files, the move rule, the shortlist, formatting |
 | `assets/charts.js` | The line and bar charts (plain SVG, no outside library, so they work offline) |
 | `assets/globe.js` | The 3D flight globe: airport coordinates, great-circle routes from XNA, animated planes, click-for-boarding-pass, departures board |
-| `assets/decor.js` | The flight and wedding illustrations (plane with a "Bride Tribe" banner, diamond ring, champagne) and vibe icons |
+| `assets/decor.js` | The vintage-travel scrapbook illustrations (all original SVG): boarding pass, passport, postage stamps for every destination, postmarks, signpost, suitcase, luggage tag, old map, compass, postcard, footer ticket, the Today page's passport stamps, and vibe icons |
 | `assets/vendor/d3-geo.min.js`, `assets/vendor/d3-array.min.js` | d3-geo 3.1.1 and d3-array 3.2.4 (ISC license), used for the globe's projection |
 | `assets/land-110m.json` | World coastlines (world-atlas, Natural Earth 1:110m, public domain), saved by the daily workflow on its first run |
 | `manifest.webmanifest` | Web app manifest that makes the site installable |

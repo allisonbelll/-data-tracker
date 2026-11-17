@@ -94,7 +94,7 @@ function barChart(container, { items, unit = "", digits = 1 }) {
   items.forEach((it, i) => {
     const yy = m.t + i * row;
     const a = x(Math.min(0, it.value)), b = x(Math.max(0, it.value));
-    const color = it.color || (it.value < 0 ? "#6c8ef5" : "#d9547a");
+    const color = it.color || (it.value < 0 ? "#5b7fa6" : "#b9783f");
     svg += `<text x="${m.l - 8}" y="${yy + row / 2 + 4}" text-anchor="end" style="fill:#3b1f2b">${esc(it.label)}</text>`;
     svg += `<rect x="${a}" y="${yy + 4}" width="${Math.max(b - a, 1.5)}" height="${row - 8}" rx="5" fill="${color}"><title>${esc(it.label)}: ${it.value.toFixed(digits)} ${esc(unit)}</title></rect>`;
     const tx = it.value < 0 ? a - 6 : b + 6;

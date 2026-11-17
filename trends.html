@@ -171,7 +171,7 @@
         `On ${now.date} the destinations were ${fmt(now.value)}°F apart`,
         `The warmest destination on the latest run was ${esc(now.warm.item)} (${fmt(now.warm.temp_f)}°F) and the coldest was ${esc(now.cold.item)} (${fmt(now.cold.temp_f)}°F). Across all ${spread.length} day${spread.length === 1 ? "" : "s"}, the gap has averaged ${fmt(mean(spread.map((s) => s.value)))}°F, ranging from ${fmt(Math.min(...spread.map((s) => s.value)))}°F to ${fmt(Math.max(...spread.map((s) => s.value)))}°F.`,
         `for each date, the highest <code>temp_f</code> minus the lowest <code>temp_f</code> among that date's rows.`,
-        (el) => lineChart(el, { dates: spread.map((s) => s.date), series: [{ name: "Spread", color: "#d9547a", values }], unit: "°F" }));
+        (el) => lineChart(el, { dates: spread.map((s) => s.date), series: [{ name: "Spread", color: "#1f5a44", values }], unit: "°F" }));
     }
 
     // E. windiest airport
@@ -197,7 +197,7 @@
         `${perfect} of ${vfr.length} destinations have had clear-sky (VFR) flying on every run`,
         `VFR means a high ceiling and good visibility, the conditions least likely to cause weather delays. ${esc(worst.label)} has had the fewest clear runs, with VFR on ${fmt(worst.value, 0)}% of its ${worst.n} observation${worst.n === 1 ? "" : "s"}. Across all rows, ${fmt(100 * rows.filter((r) => r.flight_category === "VFR").length / rows.length, 0)}% were VFR.`,
         `for each item_id, the number of rows whose <code>flight_category</code> is VFR divided by its number of rows, times 100.`,
-        (el) => barChart(el, { items: vfr.map((x) => ({ label: x.label, value: x.value, color: "#3d9970" })), unit: "%", digits: 0 }));
+        (el) => barChart(el, { items: vfr.map((x) => ({ label: x.label, value: x.value, color: "#1f5a44" })), unit: "%", digits: 0 }));
     }
   })();
   </script>
