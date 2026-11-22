@@ -94,22 +94,22 @@ date,item_id,item,source,airport,region,vibe,obs_time_utc,temp_f,temp_c,dewpoint
 2026-11-21,PHNL,Honolulu,aviationweather,Daniel K. Inouye International,USA,Island,2026-11-21T19:53:00Z,78.1,25.6,19.4,69,11,,10.0,5500,1021.1,VFR
 2026-11-21,PHOG,Maui,aviationweather,Kahului Airport,USA,Island,2026-11-21T19:54:00Z,75.0,23.9,20.0,79,13,22,10.0,,1020.7,VFR
 2026-11-21,TJSJ,San Juan,aviationweather,Luis Muñoz Marín International,Mexico & Caribbean,Island,2026-11-21T19:56:00Z,81.0,27.2,23.9,82,3,,10.0,,1014.0,VFR
-2026-11-22,KAUS,Austin,aviationweather,Austin-Bergstrom International,USA,Bachelorette,2026-11-22T00:53:00Z,68.0,20.0,16.7,81,0,,10.0,3500,1011.6,VFR
-2026-11-22,KBNA,Nashville,aviationweather,Nashville International,USA,Bachelorette,2026-11-22T00:53:00Z,62.1,16.7,-0.6,31,0,,10.0,,1017.4,VFR
-2026-11-22,KCHS,Charleston,aviationweather,Charleston International,USA,Southern charm,2026-11-22T00:56:00Z,66.0,18.9,18.3,96,9,,7.0,900,1014.6,IFR
-2026-11-22,KJFK,New York City,aviationweather,John F. Kennedy International,USA,City,2026-11-22T00:51:00Z,52.0,11.1,10.6,97,3,,9.0,25000,1027.2,VFR
-2026-11-22,KLAS,Las Vegas,aviationweather,Harry Reid International,USA,Bachelorette,2026-11-22T00:56:00Z,54.0,12.2,-5.6,28,5,,10.0,,1018.4,VFR
-2026-11-22,KMIA,Miami,aviationweather,Miami International,USA,Beach,2026-11-22T00:53:00Z,77.0,25.0,22.8,88,5,,10.0,,1013.6,VFR
-2026-11-22,KPHX,Scottsdale,aviationweather,Phoenix Sky Harbor International,USA,Desert & spa,2026-11-22T00:51:00Z,64.9,18.3,-3.9,22,4,,10.0,,1016.0,VFR
-2026-11-22,KSAV,Savannah,aviationweather,Savannah/Hilton Head International,USA,Southern charm,2026-11-22T01:10:00Z,64.0,17.8,17.2,96,8,,6.0,400,1013.6,LIFR
-2026-11-22,LEBL,Barcelona,aviationweather,Josep Tarradellas Barcelona–El Prat,Europe,Beach,2026-11-22T01:00:00Z,59.0,15.0,12.0,82,8,,6.0,,1012.0,VFR
-2026-11-22,LFPG,Paris,aviationweather,Charles de Gaulle,Europe,City,2026-11-22T01:30:00Z,46.4,8.0,6.0,87,8,,6.0,,1010.0,VFR
-2026-11-22,LGAV,Athens,aviationweather,Athens International (Greek islands gateway),Europe,Island,2026-11-22T01:20:00Z,59.0,15.0,7.0,59,0,,6.0,,1019.0,VFR
-2026-11-22,LIRF,Rome,aviationweather,Leonardo da Vinci–Fiumicino,Europe,City,2026-11-22T01:20:00Z,53.6,12.0,12.0,100,5,,6.0,,1018.0,VFR
-2026-11-22,LPPT,Lisbon,aviationweather,Humberto Delgado,Europe,City,2026-11-22T01:00:00Z,59.0,15.0,10.0,72,5,,6.0,,1023.0,VFR
-2026-11-22,MMSD,Cabo San Lucas,aviationweather,Los Cabos International,Mexico & Caribbean,Beach,2026-11-22T00:50:00Z,78.8,26.0,19.0,65,5,,10.0,,1013.3,VFR
-2026-11-22,MMUN,Cancún,aviationweather,Cancún International,Mexico & Caribbean,Beach,2026-11-22T00:44:00Z,78.8,26.0,23.0,84,0,,7.0,,1013.3,VFR
-2026-11-22,MYNN,Nassau,aviationweather,Lynden Pindling International,Mexico & Caribbean,Island,2026-11-22T01:00:00Z,75.2,24.0,23.0,94,2,,6.0,,1016.0,VFR
-2026-11-22,PHNL,Honolulu,aviationweather,Daniel K. Inouye International,USA,Island,2026-11-22T00:53:00Z,80.1,26.7,18.3,60,14,,10.0,,1018.0,VFR
-2026-11-22,PHOG,Maui,aviationweather,Kahului Airport,USA,Island,2026-11-22T00:54:00Z,78.1,25.6,20.0,71,15,,10.0,11000,1017.7,VFR
-2026-11-22,TJSJ,San Juan,aviationweather,Luis Muñoz Marín International,Mexico & Caribbean,Island,2026-11-22T01:18:00Z,80.1,26.7,23.3,82,0,,10.0,,1016.3,VFR
+2026-11-22,KAUS,Austin,aviationweather,Austin-Bergstrom International,USA,Bachelorette,2026-11-22T19:53:00Z,73.0,22.8,8.3,39,8,,10.0,9000,1016.3,VFR
+2026-11-22,KBNA,Nashville,aviationweather,Nashville International,USA,Bachelorette,2026-11-22T19:53:00Z,73.9,23.3,10.0,43,7,,10.0,,1014.0,VFR
+2026-11-22,KCHS,Charleston,aviationweather,Charleston International,USA,Southern charm,2026-11-22T19:56:00Z,66.0,18.9,17.2,90,7,,8.0,900,1010.9,IFR
+2026-11-22,KJFK,New York City,aviationweather,John F. Kennedy International,USA,City,2026-11-22T19:51:00Z,62.1,16.7,13.3,80,6,,10.0,4000,1016.7,VFR
+2026-11-22,KLAS,Las Vegas,aviationweather,Harry Reid International,USA,Bachelorette,2026-11-22T19:56:00Z,55.0,12.8,-4.4,30,3,,10.0,20000,1018.0,VFR
+2026-11-22,KMIA,Miami,aviationweather,Miami International,USA,Beach,2026-11-22T19:53:00Z,84.9,29.4,19.4,55,8,,10.0,30000,1013.3,VFR
+2026-11-22,KPHX,Scottsdale,aviationweather,Phoenix Sky Harbor International,USA,Desert & spa,2026-11-22T19:51:00Z,69.1,20.6,0.6,26,4,,10.0,,1015.0,VFR
+2026-11-22,KSAV,Savannah,aviationweather,Savannah/Hilton Head International,USA,Southern charm,2026-11-22T19:53:00Z,66.0,18.9,17.2,90,5,,10.0,700,1011.6,IFR
+2026-11-22,LEBL,Barcelona,aviationweather,Josep Tarradellas Barcelona–El Prat,Europe,Beach,2026-11-22T20:00:00Z,60.8,16.0,2.0,39,17,,6.0,,1020.0,VFR
+2026-11-22,LFPG,Paris,aviationweather,Charles de Gaulle,Europe,City,2026-11-22T20:00:00Z,42.8,6.0,5.0,93,6,,5.0,4600,1013.0,MVFR
+2026-11-22,LGAV,Athens,aviationweather,Athens International (Greek islands gateway),Europe,Island,2026-11-22T19:50:00Z,59.0,15.0,11.0,77,5,,6.0,,1018.0,VFR
+2026-11-22,LIRF,Rome,aviationweather,Leonardo da Vinci–Fiumicino,Europe,City,2026-11-22T19:50:00Z,62.6,17.0,12.0,72,21,,6.0,,1007.0,VFR
+2026-11-22,LPPT,Lisbon,aviationweather,Humberto Delgado,Europe,City,2026-11-22T20:00:00Z,57.2,14.0,10.0,77,3,,6.0,,1028.0,VFR
+2026-11-22,MMSD,Cabo San Lucas,aviationweather,Los Cabos International,Mexico & Caribbean,Beach,2026-11-22T19:54:00Z,84.2,29.0,17.0,48,5,,10.0,,1014.6,VFR
+2026-11-22,MMUN,Cancún,aviationweather,Cancún International,Mexico & Caribbean,Beach,2026-11-22T19:42:00Z,86.0,30.0,24.0,70,6,,7.0,,1013.6,VFR
+2026-11-22,MYNN,Nassau,aviationweather,Lynden Pindling International,Mexico & Caribbean,Island,2026-11-22T20:00:00Z,86.0,30.0,22.0,62,3,,6.0,,1014.0,VFR
+2026-11-22,PHNL,Honolulu,aviationweather,Daniel K. Inouye International,USA,Island,2026-11-22T19:53:00Z,80.1,26.7,17.8,58,12,23,10.0,,1019.7,VFR
+2026-11-22,PHOG,Maui,aviationweather,Kahului Airport,USA,Island,2026-11-22T19:54:00Z,78.1,25.6,17.2,60,15,,10.0,,1019.7,VFR
+2026-11-22,TJSJ,San Juan,aviationweather,Luis Muñoz Marín International,Mexico & Caribbean,Island,2026-11-22T19:56:00Z,77.0,25.0,23.3,90,4,,10.0,10000,1014.3,VFR
