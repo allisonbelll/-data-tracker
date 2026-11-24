@@ -1,7 +1,7 @@
 // Service worker: keeps the site working offline.
 // Pages, styles, scripts and icons: served from the cache, refreshed in the background.
 // Data files: network first (so online visitors always get the newest run), cache as the fallback.
-const CACHE = "jetset-v4";
+const CACHE = "jetset-v5";
 const SHELL = [
   "./", "index.html", "browse.html", "trends.html",
   "assets/style.css", "assets/app.js", "assets/charts.js", "assets/decor.js", "assets/globe.js",
